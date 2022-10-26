@@ -4,6 +4,10 @@ window.addEventListener("load", function () {
   canvas.width = 1200;
   canvas.height = 720;
   let enemies = [];
+  let score = 0;
+  let gameOver = false;
+  let vidas = 2;
+  let golpeado = false;
 
   class InputHandler {
     constructor() {
@@ -27,9 +31,9 @@ window.addEventListener("load", function () {
     constructor(gameWidth, gameHeight) {
       this.gameWidth = gameWidth;
       this.gameHeight = gameHeight;
-      this.width = 65;
+      this.width = 64;
       this.height = 86;
-      this.x = 10;
+      this.x = 100;
       this.y = this.gameHeight - this.height;
       this.image = document.getElementById("imagenPlayer");
       this.frameX = 0;
@@ -56,7 +60,27 @@ window.addEventListener("load", function () {
       );
     }
 
-    update(input, deltaTime) {
+    update(input, deltaTime, enemies) {
+      //colicion
+      enemies.forEach((enemy) => {
+        const dx = enemy.x + enemy.width / 2 - (this.x + this.width / 2);
+        const dy = enemy.y + enemy.height / 2 - (this.y + this.height / 2);
+        const distancia = Math.sqrt(dx * dx + dy * dy);
+        if (distancia < enemy.width / 2 + this.width / 2) {
+          console.log(vidas);
+          vidas--;
+          golpeado = true;
+        }
+      });
+      if (golpeado) {
+        enemies.shift();
+        golpeado = false;
+      }
+      if (vidas == 0) {
+        this.frameX = 5;
+        gameOver = true;
+      }
+      //salto
       if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) {
         this.vy -= 30;
         this.frameX = 4;
@@ -64,7 +88,9 @@ window.addEventListener("load", function () {
       this.y += this.vy;
       if (!this.onGround()) {
         this.vy += this.weight;
-      } else {
+      }
+      //animacion corriendo
+      else {
         if (this.frameTimer > this.frameInterval) {
           if (this.frameX < 3) {
             this.frameX++;
@@ -128,6 +154,7 @@ window.addEventListener("load", function () {
       this.frameInterval = 1000 / this.fps;
       this.frameX = 0;
       this.speed = 8;
+      this.finalized = false;
     }
 
     draw(context) {
@@ -156,6 +183,10 @@ window.addEventListener("load", function () {
       } else {
         this.frameTimer += deltaTime;
       }
+      if (this.x < 0 - this.width) {
+        this.finalized = true;
+        score++;
+      }
     }
   }
   //
@@ -171,9 +202,15 @@ window.addEventListener("load", function () {
       enemy.draw(ctx);
       enemy.update(deltaTime);
     });
+    enemies = enemies.filter((enemy) => !enemy.finalized);
   }
 
-  function displayStatusText() {}
+  function displayText(context) {
+    context.fillStyle = "black";
+    context.font = "40px Helvetica";
+    context.fillText("Puntaje: " + score, 20, 50);
+    context.fillText("Vidas: " + vidas, 800, 50);
+  }
 
   const input = new InputHandler();
   const player = new Player(canvas.width, canvas.height);
@@ -184,15 +221,17 @@ window.addEventListener("load", function () {
   let randomEnemyInterval = Math.random() * 1000 + 500;
 
   function animate(timeStamp) {
+    if (!gameOver) requestAnimationFrame(animate);
+
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     background.draw(ctx);
     background.update();
     player.draw(ctx);
-    player.update(input, deltaTime);
+    player.update(input, deltaTime, enemies);
     handleEnemies(deltaTime);
-    requestAnimationFrame(animate);
+    displayText(ctx);
   }
   animate(0);
 });
