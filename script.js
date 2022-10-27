@@ -24,6 +24,9 @@ window.addEventListener("load", function () {
   let vidas = 2;
   let golpeado = false;
   let frame = 0;
+  let gano = false;
+
+  const puntajeMaximo = 10;
 
   class InputHandler {
     constructor() {
@@ -33,20 +36,26 @@ window.addEventListener("load", function () {
         if (e.key == "ArrowUp" && this.keys.indexOf(e.key) == -1) {
           this.keys.push(e.key);
         }
-        console.log(e.key, this.keys);
       });
       window.addEventListener("keyup", (e) => {
         if (e.key == "ArrowUp") {
           this.keys.splice(this.keys.indexOf(e.key), 1);
         }
-        console.log(e.key, this.keys);
       });
 
       //registrar salto touch screen
-      window.addEventListener(["touchstart"], (e) => {
+      window.addEventListener("touchstart", (e) => {
         if (e.target.id == "canvas") this.keys.push("ArrowUp");
       });
       window.addEventListener("touchend", (e) => {
+        this.keys.splice(this.keys.indexOf("ArrowUp"), 1);
+      });
+
+      //registrar salto con click
+      window.addEventListener("mousedown", (e) => {
+        if (e.target.id == "canvas") this.keys.push("ArrowUp");
+      });
+      window.addEventListener("mouseup", (e) => {
         this.keys.splice(this.keys.indexOf("ArrowUp"), 1);
       });
     }
@@ -75,7 +84,7 @@ window.addEventListener("load", function () {
       context.drawImage(
         this.image,
         this.frameX * this.width,
-        this.frameY * this.height,
+        this.height*this.frameY,
         this.width,
         this.height,
         this.x,
@@ -97,16 +106,25 @@ window.addEventListener("load", function () {
           golpeado = true;
         }
       });
+
+      //para prevenir multiples choques con el mismo enemigo
       if (golpeado) {
         enemies.shift();
         golpeado = false;
       }
+
+      if (gano == true) {
+        this.frameX = 0;
+        gameOver = true;
+      }
+
       if (vidas == 0) {
         this.frameX = 5;
         gameOver = true;
       }
-      //salto
-      if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) {
+
+      //animacion salto
+      if (input.keys.indexOf("ArrowUp") > -1 && this.onGround())  {
         this.vy -= 30;
         this.frameX = 4;
       }
@@ -114,6 +132,7 @@ window.addEventListener("load", function () {
       if (!this.onGround()) {
         this.vy += this.weight;
       }
+
       //animacion corriendo
       else {
         if (this.frameTimer > this.frameInterval) {
@@ -128,8 +147,7 @@ window.addEventListener("load", function () {
         }
         this.vy = 0;
       }
-      if (this.y > this.gameHeight - this.height)
-        this.y = this.gameHeight - this.height;
+
     }
     onGround() {
       return this.y >= this.gameHeight - this.height;
@@ -220,6 +238,7 @@ window.addEventListener("load", function () {
       }
     }
   }
+
   //
   function handleEnemies(deltaTime) {
     if (enemyTimer > randomEnemyInterval) {
@@ -237,30 +256,41 @@ window.addEventListener("load", function () {
   }
 
   function handleFondos(ctx) {
-    fondo3.draw(ctx);
     fondo3.update();
-    fondo6.draw(ctx);
-    fondo6.update();
-    fondo5.draw(ctx);
+    fondo3.draw(ctx);
     fondo5.update();
-    fondo4.draw(ctx);
+    fondo5.draw(ctx);
+    fondo6.update();
+    fondo6.draw(ctx);
     fondo4.update();
-    fondo2.draw(ctx);
+    fondo4.draw(ctx);
     fondo2.update();
-    fondo1.draw(ctx);
+    fondo2.draw(ctx);
     fondo1.update();
+    fondo1.draw(ctx);
   }
 
   function displayText(context) {
-    context.fillStyle = "black";
-    context.font = "40px Helvetica";
-    context.fillText("Puntaje: " + score, 20, 50);
+    context.fillStyle = "white";
     context.fillText("Vidas: " + vidas, 800, 50);
+
+    context.font = "40px Helvetica";
+    context.fillStyle = "black";
+
+    for (let i = 0; i < puntajeMaximo; i++) {
+      context.fillText("★", 30 + i * 50, 50);
+    }
+    ctx.font = "40px Helvetica";
+    ctx.fillStyle = "yellow";
+
+    for (let i = 0; i < score; i++) {
+      ctx.fillText("★", 30 + i * 50, 50);
+    }
   }
 
+  //carga input, player y fondos
   const input = new InputHandler();
   const player = new Player(canvas.width, 500);
-
   const fondo1 = new Fondo(imagenFondo1, 0.5, 0);
   const fondo2 = new Fondo(imagenFondo2, 2, 79);
   const fondo3 = new Fondo(imagenFondo3, 2.5, 200);
@@ -268,21 +298,42 @@ window.addEventListener("load", function () {
   const fondo5 = new Fondo(nubeMediana, 0.7, 400);
   const fondo6 = new Fondo(nubeGrande, 1, 400);
 
+  // spawn de enemigos
   let lastTime = 0;
   let enemyTimer = 0;
-  let randomEnemyInterval = Math.random() * 1000 + 500;
+  let randomEnemyInterval = Math.random() * 1;
 
+  //funcion para dibujar
   function animate(timeStamp) {
-    if (!gameOver) requestAnimationFrame(animate);
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     handleFondos(ctx);
-    player.draw(ctx);
-    player.update(input, deltaTime, enemies);
-    handleEnemies(deltaTime);
     displayText(ctx);
+    player.update(input, deltaTime, enemies);
+    player.draw(ctx);
+    handleEnemies(deltaTime);
+    frame--;
+    if (vidas <= 0 || score == puntajeMaximo || gameOver == true) {
+      if (vidas <= 0) gano = false;
+      if (score == puntajeMaximo) gano = true;
+      requestAnimationFrame(finished);
+    } else {
+      requestAnimationFrame(animate);
+    }
+  }
+
+  function finished(timeStamp) {
+    const deltaTime = timeStamp - lastTime;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    handleFondos(ctx);
+    displayText(ctx);
+    player.update(input, deltaTime, enemies);
+    player.draw(ctx);
+    handleEnemies(deltaTime);
     frame--;
   }
+
+  //start
   animate(0);
 });
