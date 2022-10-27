@@ -322,7 +322,7 @@ window.addEventListener("load", function () {
   // spawn de enemigos
   let lastTime = 0;
   let enemyTimer = 0;
-  let randomEnemyInterval = Math.random() * 1;
+  let randomEnemyInterval = Math.random() * 1000+500;
 
   //funcion para dibujar
   function animate(timeStamp) {
