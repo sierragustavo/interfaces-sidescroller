@@ -15,3 +15,10 @@ body {
 #imagenEnemy {
   display: none;
 }
+
+@font-face {
+  font-family: Sonic;
+  src: local("sonicfont"), local("sonicfont"),
+    url(sonicfont.TTF);
+  font-weight: bold;
+}

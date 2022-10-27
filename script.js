@@ -14,6 +14,7 @@ nubeMediana.src = "imagenes/nubes-medianas.png";
 const nubeGrande = new Image();
 nubeGrande.src = "imagenes/nubes-grandes.png";
 
+
 window.addEventListener("load", function () {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
@@ -73,8 +74,8 @@ window.addEventListener("load", function () {
       this.image = document.getElementById("imagenPlayer");
       this.frameX = 0;
       this.frameY = 0;
-      this.vy = 0;
-      this.weight = 1.2;
+      this.vy = 5;
+      this.weight = 1;
       this.fps = 30;
       this.frameTimer = 0;
       this.frameInterval = 1000 / this.fps;
