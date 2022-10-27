@@ -26,7 +26,7 @@ window.addEventListener("load", function () {
   let frame = 0;
   let gano = false;
 
-  const puntajeMaximo = 10;
+  const puntajeMaximo = 2;
 
   class InputHandler {
     constructor() {
@@ -84,7 +84,7 @@ window.addEventListener("load", function () {
       context.drawImage(
         this.image,
         this.frameX * this.width,
-        this.height*this.frameY,
+        this.height * this.frameY,
         this.width,
         this.height,
         this.x,
@@ -114,7 +114,7 @@ window.addEventListener("load", function () {
       }
 
       if (gano == true) {
-        this.frameX = 0;
+        this.frameX = 6;
         gameOver = true;
       }
 
@@ -124,7 +124,7 @@ window.addEventListener("load", function () {
       }
 
       //animacion salto
-      if (input.keys.indexOf("ArrowUp") > -1 && this.onGround())  {
+      if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) {
         this.vy -= 30;
         this.frameX = 4;
       }
@@ -147,7 +147,6 @@ window.addEventListener("load", function () {
         }
         this.vy = 0;
       }
-
     }
     onGround() {
       return this.y >= this.gameHeight - this.height;
@@ -274,7 +273,6 @@ window.addEventListener("load", function () {
     context.fillStyle = "white";
     context.fillText("Vidas: " + vidas, 800, 50);
 
-    context.font = "40px Helvetica";
     context.fillStyle = "black";
 
     for (let i = 0; i < puntajeMaximo; i++) {
@@ -285,6 +283,20 @@ window.addEventListener("load", function () {
 
     for (let i = 0; i < score; i++) {
       ctx.fillText("★", 30 + i * 50, 50);
+    }
+  }
+
+  function displayGameOver(context) {
+    context.fillStyle = "white";
+    context.font = "40px Helvetica";
+    if (gano) {
+      context.fillText("¡Ganaste!", canvas.width / 2, canvas.height / 2);
+    } else {
+      context.fillText(
+        "Perdiste 😥 - Puntuación: " + score + "/" + puntajeMaximo,
+        (canvas.width / 2)/2,
+        canvas.height/2
+      );
     }
   }
 
@@ -327,7 +339,7 @@ window.addEventListener("load", function () {
     const deltaTime = timeStamp - lastTime;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     handleFondos(ctx);
-    displayText(ctx);
+    displayGameOver(ctx);
     player.update(input, deltaTime, enemies);
     player.draw(ctx);
     handleEnemies(deltaTime);
