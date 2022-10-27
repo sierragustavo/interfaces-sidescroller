@@ -1,13 +1,29 @@
 window.addEventListener("load", function () {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-  canvas.width = 1200;
-  canvas.height = 720;
+
+  const imagenFondo1 = new Image();
+  imagenFondo1.src = "imagenes/fondo-1.png";
+  const imagenFondo2 = new Image();
+  imagenFondo2.src = "imagenes/fondo-2.png";
+  const imagenFondo3 = new Image();
+  imagenFondo3.src = "imagenes/fondo-3.png";
+
+  const nubeChica = new Image();
+  nubeChica.src = "imagenes/nubes-chicas.png";
+  const nubeMediana = new Image();
+  nubeMediana.src = "imagenes/nubes-medianas.png";
+  const nubeGrande = new Image();
+  nubeGrande.src = "imagenes/nubes-grandes.png";
+
+  canvas.width = 1100;
+  canvas.height = 600;
   let enemies = [];
   let score = 0;
   let gameOver = false;
   let vidas = 2;
   let golpeado = false;
+  let frame = 0;
 
   class InputHandler {
     constructor() {
@@ -111,32 +127,38 @@ window.addEventListener("load", function () {
     }
   }
 
-  class Background {
-    constructor(gameWidth, gameHeight) {
-      this.gameWidth = gameWidth;
-      this.gameHeight = gameHeight;
-      this.image = document.getElementById("backgroundImage");
+  class Fondo {
+    constructor(imagen, speed, piso) {
       this.x = 0;
-      this.y = 0;
-      this.width = 2400;
-      this.height = 720;
-      this.speed = 5;
+      this.y = piso;
+      this.width = imagen.width;
+      this.height = imagen.height;
+      this.imagen = imagen;
+      this.speed = speed;
     }
 
     draw(context) {
-      context.drawImage(this.image, this.x, this.y, this.width, this.height);
       context.drawImage(
-        this.image,
-        this.x + this.width - this.speed,
-        this.y,
+        this.imagen,
+        this.x,
+        canvas.height - this.y - this.height,
+        this.width,
+        this.height
+      );
+      context.drawImage(
+        this.imagen,
+        this.x + this.width,
+        canvas.height - this.y - this.height,
         this.width,
         this.height
       );
     }
 
     update() {
-      this.x -= this.speed;
-      if (this.x < 0 - this.width) this.x = 0;
+      if (this.x <= -this.width) {
+        this.x = 0;
+      }
+      this.x = frame * this.speed % this.width;
     }
   }
 
@@ -153,7 +175,7 @@ window.addEventListener("load", function () {
       this.frameTimer = 0;
       this.frameInterval = 1000 / this.fps;
       this.frameX = 0;
-      this.speed = 8;
+      this.speed = 6;
       this.finalized = false;
     }
 
@@ -192,7 +214,7 @@ window.addEventListener("load", function () {
   //
   function handleEnemies(deltaTime) {
     if (enemyTimer > randomEnemyInterval) {
-      enemies.push(new Enemy(canvas.width, canvas.height));
+      enemies.push(new Enemy(canvas.width, 500));
       randomEnemyInterval = Math.random() * 1000 + 500;
       enemyTimer = 0;
     } else {
@@ -205,6 +227,21 @@ window.addEventListener("load", function () {
     enemies = enemies.filter((enemy) => !enemy.finalized);
   }
 
+  function handleFondos(ctx) {
+    fondo3.draw(ctx);
+    fondo3.update();
+    fondo6.draw(ctx);
+    fondo6.update();
+    fondo5.draw(ctx);
+    fondo5.update();
+    fondo4.draw(ctx);
+    fondo4.update();
+    fondo2.draw(ctx);
+    fondo2.update();
+    fondo1.draw(ctx);
+    fondo1.update();
+  }
+
   function displayText(context) {
     context.fillStyle = "black";
     context.font = "40px Helvetica";
@@ -213,8 +250,14 @@ window.addEventListener("load", function () {
   }
 
   const input = new InputHandler();
-  const player = new Player(canvas.width, canvas.height);
-  const background = new Background(canvas.width, canvas.height);
+  const player = new Player(canvas.width, 500);
+
+  const fondo1 = new Fondo(imagenFondo1, 0.5, 0);
+  const fondo2 = new Fondo(imagenFondo2, 2, 79);
+  const fondo3 = new Fondo(imagenFondo3, 2.5, 200);
+  const fondo4 = new Fondo(nubeChica, 0.3, 200);
+  const fondo5 = new Fondo(nubeMediana, 0.7, 400);
+  const fondo6 = new Fondo(nubeGrande, 1, 400);
 
   let lastTime = 0;
   let enemyTimer = 0;
@@ -222,16 +265,15 @@ window.addEventListener("load", function () {
 
   function animate(timeStamp) {
     if (!gameOver) requestAnimationFrame(animate);
-
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    background.draw(ctx);
-    background.update();
+    handleFondos(ctx);
     player.draw(ctx);
     player.update(input, deltaTime, enemies);
     handleEnemies(deltaTime);
     displayText(ctx);
+    frame--;
   }
   animate(0);
 });
