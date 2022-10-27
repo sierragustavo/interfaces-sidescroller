@@ -28,6 +28,7 @@ window.addEventListener("load", function () {
   class InputHandler {
     constructor() {
       this.keys = [];
+      //registrar salto con la tecla ↑
       window.addEventListener("keydown", (e) => {
         if (e.key == "ArrowUp" && this.keys.indexOf(e.key) == -1) {
           this.keys.push(e.key);
@@ -39,6 +40,14 @@ window.addEventListener("load", function () {
           this.keys.splice(this.keys.indexOf(e.key), 1);
         }
         console.log(e.key, this.keys);
+      });
+
+      //registrar salto touch screen
+      window.addEventListener(["touchstart"], (e) => {
+        if (e.target.id == "canvas") this.keys.push("ArrowUp");
+      });
+      window.addEventListener("touchend", (e) => {
+        this.keys.splice(this.keys.indexOf("ArrowUp"), 1);
       });
     }
   }
@@ -158,7 +167,7 @@ window.addEventListener("load", function () {
       if (this.x <= -this.width) {
         this.x = 0;
       }
-      this.x = frame * this.speed % this.width;
+      this.x = (frame * this.speed) % this.width;
     }
   }
 
