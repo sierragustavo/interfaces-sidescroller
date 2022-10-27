@@ -1,4 +1,3 @@
-
 //carga primero las imagenes del background
 //porque dependiendo del pc puede tardar mas o menos en cargar
 const imagenFondo1 = new Image();
@@ -15,32 +14,29 @@ nubeMediana.src = "imagenes/nubes-medianas.png";
 const nubeGrande = new Image();
 nubeGrande.src = "imagenes/nubes-grandes.png";
 
-
 window.addEventListener("load", function () {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-
 
   canvas.width = 1100;
   canvas.height = 600;
   let enemies = [];
   let score = 0;
   let gameOver = false;
-  let vidas = 2;
   let golpeado = false;
   let frame = 0;
   let gano = false;
 
-  const puntajeMaximo = 2;
+  let puntajeMaximo = 10;
+  let vidas = 2;
 
   class InputHandler {
     constructor() {
       this.keys = [];
       //registrar salto con la tecla ↑
       window.addEventListener("keydown", (e) => {
-        if (e.key == "ArrowUp" && this.keys.indexOf(e.key) == -1) {
+        if (e.key == "ArrowUp" && this.keys.indexOf(e.key) == -1)
           this.keys.push(e.key);
-        }
       });
       window.addEventListener("keyup", (e) => {
         if (e.key == "ArrowUp") {
@@ -67,18 +63,18 @@ window.addEventListener("load", function () {
   }
 
   class Player {
-    constructor(gameWidth, gameHeight) {
+    constructor(gameWidth, gameFloor) {
       this.gameWidth = gameWidth;
-      this.gameHeight = gameHeight;
+      this.gameFloor = gameFloor;
       this.width = 64;
       this.height = 86;
       this.x = 100;
-      this.y = this.gameHeight - this.height;
+      this.y = this.gameFloor - this.height;
       this.image = document.getElementById("imagenPlayer");
       this.frameX = 0;
       this.frameY = 0;
       this.vy = 0;
-      this.weight = 1;
+      this.weight = 1.2;
       this.fps = 30;
       this.frameTimer = 0;
       this.frameInterval = 1000 / this.fps;
@@ -154,7 +150,7 @@ window.addEventListener("load", function () {
       }
     }
     onGround() {
-      return this.y >= this.gameHeight - this.height;
+      return this.y >= this.gameFloor - this.height;
     }
   }
 
@@ -194,14 +190,14 @@ window.addEventListener("load", function () {
   }
 
   class Enemy {
-    constructor(gameWidth, gameHeight) {
+    constructor(gameWidth, gameFloor) {
       this.gameWidth = gameWidth;
-      this.gameHeight = gameHeight;
+      this.gameFloor = gameFloor;
       this.width = 84;
       this.height = 64;
       this.image = document.getElementById("imagenEnemy");
       this.x = this.gameWidth;
-      this.y = this.gameHeight - this.height;
+      this.y = this.gameFloor - this.height;
       this.fps = 10;
       this.frameTimer = 0;
       this.frameInterval = 1000 / this.fps;
@@ -322,14 +318,14 @@ window.addEventListener("load", function () {
   // spawn de enemigos
   let lastTime = 0;
   let enemyTimer = 0;
-  let randomEnemyInterval = Math.random() * 1000+(500);
+  let randomEnemyInterval = 1;
 
   //funcion para dibujar
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     handleFondos(ctx);
     displayText(ctx);
     player.update(input, deltaTime, enemies);
@@ -353,7 +349,6 @@ window.addEventListener("load", function () {
     player.update(input, deltaTime, enemies);
     player.draw(ctx);
     handleEnemies(deltaTime);
-    frame--;
   }
 
   //start
