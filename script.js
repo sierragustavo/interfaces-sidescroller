@@ -1,20 +1,25 @@
+
+//carga primero las imagenes del background
+//porque dependiendo del pc puede tardar mas o menos en cargar
+const imagenFondo1 = new Image();
+imagenFondo1.src = "imagenes/fondo-1.png";
+const imagenFondo2 = new Image();
+imagenFondo2.src = "imagenes/fondo-2.png";
+const imagenFondo3 = new Image();
+imagenFondo3.src = "imagenes/fondo-3.png";
+
+const nubeChica = new Image();
+nubeChica.src = "imagenes/nubes-chicas.png";
+const nubeMediana = new Image();
+nubeMediana.src = "imagenes/nubes-medianas.png";
+const nubeGrande = new Image();
+nubeGrande.src = "imagenes/nubes-grandes.png";
+
+
 window.addEventListener("load", function () {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
-  const imagenFondo1 = new Image();
-  imagenFondo1.src = "imagenes/fondo-1.png";
-  const imagenFondo2 = new Image();
-  imagenFondo2.src = "imagenes/fondo-2.png";
-  const imagenFondo3 = new Image();
-  imagenFondo3.src = "imagenes/fondo-3.png";
-
-  const nubeChica = new Image();
-  nubeChica.src = "imagenes/nubes-chicas.png";
-  const nubeMediana = new Image();
-  nubeMediana.src = "imagenes/nubes-medianas.png";
-  const nubeGrande = new Image();
-  nubeGrande.src = "imagenes/nubes-grandes.png";
 
   canvas.width = 1100;
   canvas.height = 600;
@@ -255,18 +260,22 @@ window.addEventListener("load", function () {
   }
 
   function handleFondos(ctx) {
-    fondo3.update();
     fondo3.draw(ctx);
-    fondo5.update();
+    fondo3.update();
     fondo5.draw(ctx);
-    fondo6.update();
+    fondo5.update();
     fondo6.draw(ctx);
-    fondo4.update();
+
+    fondo6.update();
     fondo4.draw(ctx);
-    fondo2.update();
+
+    fondo4.update();
     fondo2.draw(ctx);
-    fondo1.update();
+
+    fondo2.update();
     fondo1.draw(ctx);
+
+    fondo1.update();
   }
 
   function displayText(context) {
@@ -294,8 +303,8 @@ window.addEventListener("load", function () {
     } else {
       context.fillText(
         "Perdiste 😥 - Puntuación: " + score + "/" + puntajeMaximo,
-        (canvas.width / 2)/2,
-        canvas.height/2
+        canvas.width / 2 / 2,
+        canvas.height / 2
       );
     }
   }
@@ -320,6 +329,7 @@ window.addEventListener("load", function () {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     handleFondos(ctx);
     displayText(ctx);
     player.update(input, deltaTime, enemies);
